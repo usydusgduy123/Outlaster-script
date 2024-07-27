@@ -369,34 +369,35 @@ local function fireTouchInterest(part)
 end
 
 local function checkAndFireTouchInterests()
+    local buoyBasketsPath = workspace:FindFirstChild("Buoy Baskets")
+    if not buoyBasketsPath then return end
+
+    local mapPath = buoyBasketsPath:FindFirstChild("Map")
+    if not mapPath then return end
+
     while _G.FiringTouchInterests do
         for _, tribe in ipairs(tribes) do
+            local tribePath = mapPath:FindFirstChild(tribe)
+            if not tribePath then continue end
+
+            local basketsPath = tribePath:FindFirstChild("Baskets")
+            if not basketsPath then continue end
+
             for _, basketName in ipairs(basketNames) do
-                local path = workspace:FindFirstChild("Buoy Baskets")
-                if path then
-                    path = path:FindFirstChild("Map")
-                    if path then
-                        path = path:FindFirstChild(tribe)
-                        if path then
-                            path = path:FindFirstChild("Baskets")
-                            if path then
-                                path = path:FindFirstChild(basketName)
-                                if path then
-                                    path = path:FindFirstChild("Basket")
-                                    if path then
-                                        local inPart = path:FindFirstChild("In")
-                                        if inPart and inPart:FindFirstChild("TouchInterest") then
-                                            fireTouchInterest(inPart)
-                                        end
-                                    end
-                                end
-                            end
-                        end
-                    end
+                local basketPath = basketsPath:FindFirstChild(basketName)
+                if not basketPath then continue end
+
+                local basket = basketPath:FindFirstChild("Basket")
+                if not basket then continue end
+
+                local inPart = basket:FindFirstChild("In")
+                if inPart and inPart:FindFirstChild("TouchInterest") then
+                    fireTouchInterest(inPart)
+                    wait(math.random(0.1, 0.3))  -- Add randomized delay
                 end
             end
         end
-        wait(0.1)
+        wait(0.5)  -- Add delay between iterations
     end
 end
 
