@@ -22,6 +22,7 @@ local humanoid = character:WaitForChild("Humanoid")
 local isNoclip = false
 
 -- Function to check if two players are friends
+-- Mock implementation: players are friends if their IDs are both even or both odd
 local function isPlayerFriended(player, otherPlayer)
     local success, result = pcall(function()
         return player:IsFriendsWith(otherPlayer.UserId)
