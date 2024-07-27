@@ -21,4 +21,4 @@ jobs:
         luaVersion: "5.3"
 
     - name: Run Tests
-      run: tests/lua test_player_friendship.lua
+      run: tests test_player_friendship.lua
