@@ -1,27 +1,23 @@
--- bad syntax presented by me!
 local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/xHeptc/Kavo-UI-Library/main/source.lua"))()
 local Window = Library.CreateLib("Outlaster Script by d3cryptt!", "Ocean")
 
+-- Intro Tab and Sections
 local IntroTab = Window:NewTab("Intro/Credits")
-local IntroSection = IntroTab:NewSection("As of 7/25/24, Wave supports 70% of this scripts functions.")
-local IntroSection = IntroTab:NewSection("Firing TouchInterests WILL crash your game.")
-local IntroSection = IntroTab:NewSection("The buttons below will crash your game, if using Wave. ")
-local IntroSection = IntroTab:NewSection("Beat to the Punch, Buoy Baskets, Eye on the Prize.")
-local IntroSection = IntroTab:NewSection("Everything but most challenges should work 100% fine.")
+local IntroSection1 = IntroTab:NewSection("As of 7/25/24, Wave supports 70% of this script's functions.")
+local IntroSection2 = IntroTab:NewSection("Firing TouchInterests WILL crash your game.")
+local IntroSection3 = IntroTab:NewSection("The buttons below will crash your game if using Wave.")
+local IntroSection4 = IntroTab:NewSection("Beat to the Punch, Buoy Baskets, Eye on the Prize.")
+local IntroSection5 = IntroTab:NewSection("Everything but most challenges should work 100% fine.")
 
--- Miscellaneous Section
+-- Miscellaneous Tab and Sections
 local MiscellaneousTab = Window:NewTab("Miscellaneous")
 local MiscellaneousSection = MiscellaneousTab:NewSection("Rejoin or execute the script again if anything breaks!")
 
-local Players = game:GetService("Players")
-local StarterGui = game:GetService("StarterGui")
-local RunService = game:GetService("RunService")
-local player = Players.LocalPlayer
-local character = player.Character or player.CharacterAdded:Wait()
-local humanoid = character:WaitForChild("Humanoid")
-local isNoclip = false
+-- Add Team Section after Intro
+local TeamTab = Window:NewTab("Team Challenges")
+local TeamSection = TeamTab:NewSection("Some stuff might not work, use infinite yield for help!")
 
--- Function to check if two players are friends
+-- Function and Button for "Check for Teamers"
 local function isPlayerFriended(player, otherPlayer)
     local success, result = pcall(function()
         return player:IsFriendsWith(otherPlayer.UserId)
@@ -29,20 +25,10 @@ local function isPlayerFriended(player, otherPlayer)
     return success and result
 end
 
--- Function to get a player's display name
-local function getDisplayName(player)
-    local character = workspace.Characters:FindFirstChild(player.Name)
-    if character and character:FindFirstChild("Displaytag") and character.Displaytag:FindFirstChild("Display") then
-        return character.Displaytag.Display.Text
-    end
-    return player.Name
-end
-
--- Function to notify players about teamers
 local function notifyTeamers(teamingPlayers)
     for _, group in ipairs(teamingPlayers) do
         local message = table.concat(group, ", ") .. " are teaming!"
-        StarterGui:SetCore("SendNotification", {
+        game:GetService("StarterGui"):SetCore("SendNotification", {
             Title = "Teaming Alert",
             Text = message,
             Duration = 10
@@ -50,9 +36,8 @@ local function notifyTeamers(teamingPlayers)
     end
 end
 
--- Function to check for teaming players
 local function checkTeamingPlayers()
-    local players = Players:GetPlayers()
+    local players = game:GetService("Players"):GetPlayers()
     local seenPlayers = {}
     local teamingGroups = {}
 
@@ -61,12 +46,8 @@ local function checkTeamingPlayers()
             local teamingGroup = {}
             for _, otherPlayer in ipairs(players) do
                 if player ~= otherPlayer and isPlayerFriended(player, otherPlayer) then
-                    if not table.find(teamingGroup, getDisplayName(player)) then
-                        table.insert(teamingGroup, getDisplayName(player))
-                    end
-                    if not table.find(teamingGroup, getDisplayName(otherPlayer)) then
-                        table.insert(teamingGroup, getDisplayName(otherPlayer))
-                    end
+                    table.insert(teamingGroup, player.Name)
+                    table.insert(teamingGroup, otherPlayer.Name)
                     seenPlayers[player.Name] = true
                     seenPlayers[otherPlayer.Name] = true
                 end
@@ -82,85 +63,26 @@ local function checkTeamingPlayers()
     end
 end
 
--- Button to check for teamers
 MiscellaneousSection:NewButton("Check for Teamers", "Checks for teamers in the server", function()
     checkTeamingPlayers()
 end)
 
-
-local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
-local player = Players.LocalPlayer
-local character = player.Character or player.CharacterAdded:Wait()
-local humanoid = character:WaitForChild("Humanoid")
-
--- Connections storage
-local HumanModCons = {}
-
--- Function to handle WalkSpeed change
-local function WalkSpeedChange(speed)
-    humanoid.WalkSpeed = speed
-end
-
--- Function to handle JumpPower change
-local function JumpPowerChange(power)
-    humanoid.JumpPower = power
-end
-
--- Slider for WalkSpeed
+-- WalkSpeed and JumpPower Sliders
 MiscellaneousSection:NewSlider("Walk Speed", "Adjusts your walk speed", 44, 16, function(value)
-    local speed = value
-    if isnumber(speed) then
-        WalkSpeedChange(speed)
-        HumanModCons.wsLoop = (HumanModCons.wsLoop and HumanModCons.wsLoop:Disconnect() and false) or humanoid:GetPropertyChangedSignal("WalkSpeed"):Connect(function()
-            WalkSpeedChange(speed)
-        end)
-        HumanModCons.wsCA = (HumanModCons.wsCA and HumanModCons.wsCA:Disconnect() and false) or player.CharacterAdded:Connect(function(nChar)
-            character, humanoid = nChar, nChar:WaitForChild("Humanoid")
-            WalkSpeedChange(speed)
-            HumanModCons.wsLoop = (HumanModCons.wsLoop and HumanModCons.wsLoop:Disconnect() and false) or humanoid:GetPropertyChangedSignal("WalkSpeed"):Connect(function()
-                WalkSpeedChange(speed)
-            end)
-        end)
+    local player = game:GetService("Players").LocalPlayer
+    local humanoid = player.Character and player.Character:FindFirstChild("Humanoid")
+    if humanoid then
+        humanoid.WalkSpeed = value
     end
 end)
 
--- Slider for JumpPower
 MiscellaneousSection:NewSlider("Jump Power", "Adjusts your jump power", 79, 50, function(value)
-    local power = value
-    if isnumber(power) then
-        JumpPowerChange(power)
-        HumanModCons.jpLoop = (HumanModCons.jpLoop and HumanModCons.jpLoop:Disconnect() and false) or humanoid:GetPropertyChangedSignal("JumpPower"):Connect(function()
-            JumpPowerChange(power)
-        end)
-        HumanModCons.jpCA = (HumanModCons.jpCA and HumanModCons.jpCA:Disconnect() and false) or player.CharacterAdded:Connect(function(nChar)
-            character, humanoid = nChar, nChar:WaitForChild("Humanoid")
-            JumpPowerChange(power)
-            HumanModCons.jpLoop = (HumanModCons.jpLoop and HumanModCons.jpLoop:Disconnect() and false) or humanoid:GetPropertyChangedSignal("JumpPower"):Connect(function()
-                JumpPowerChange(power)
-            end)
-        end)
+    local player = game:GetService("Players").LocalPlayer
+    local humanoid = player.Character and player.Character:FindFirstChild("Humanoid")
+    if humanoid then
+        humanoid.JumpPower = value
     end
 end)
-
--- Cleanup function when the player leaves
-Players.PlayerRemoving:Connect(function(removingPlayer)
-    if removingPlayer == player then
-        if HumanModCons.wsLoop then HumanModCons.wsLoop:Disconnect() end
-        if HumanModCons.wsCA then HumanModCons.wsCA:Disconnect() end
-        if HumanModCons.jpLoop then HumanModCons.jpLoop:Disconnect() end
-        if HumanModCons.jpCA then HumanModCons.jpCA:Disconnect() end
-    end
-end)
-
--- Function to check if a value is a number
-function isnumber(value)
-    return type(value) == "number"
-end
-
-
-
-
 
 -- ESP Script
 local function runESPScript()
@@ -228,25 +150,19 @@ local function runESPScript()
     end
 end
 
--- Button to run the ESP script in Miscellaneous section
+-- ESP Script Button
 MiscellaneousSection:NewButton("Hint/Idol ESP", "Activates the Hint ESP script", function()
     runESPScript()
 end)
 
-
+-- Infinite Yield Button
 MiscellaneousSection:NewButton("Infinite Yield", "gives you admin commands", function()
- loadstring(game:HttpGet('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'))()
+    loadstring(game:HttpGet('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'))()
 end)
 
-local TeamTab = Window:NewTab("Team Challenges")
-local TeamSection = TeamTab:NewSection("Some stuff might not work, use infinite yield for help!")
-
-
-
-
--- Button to toggle TouchInterest firing
+-- Button for "Flag it Down" in Team Challenges
 TeamSection:NewButton("Flag it Down", "Fires TouchInterest every 0.5 seconds", function()
-    -- Ensure to require necessary services and libraries
+ -- Ensure to require necessary services and libraries
 local Players = game:GetService("Players")
 local StarterGui = game:GetService("StarterGui")
 
@@ -299,7 +215,6 @@ end
     end
 end)
 
-
 -- Function to fire TouchInterest
 local function fireTouchInterests()
     local paths = {
@@ -327,18 +242,6 @@ TeamSection:NewToggle("Beat To The Punch (auto win obby)", "Toggle auto firing T
     end
 end)
 
-
--- Function to delete all parts in the given path
-local function deletePartsInPath(path)
-    local parts = path:GetChildren()
-    for _, part in ipairs(parts) do
-        part:Destroy()
-    end
-end
-
-
-
-
 -- Button to delete parts in workspace["Order Ordeal"].Map.Curtains
 TeamSection:NewButton("Order Ordeal (Delete Curtains)", "Deletes all parts in the Curtains folder", function()
     local path = workspace:FindFirstChild("Order Ordeal")
@@ -359,6 +262,7 @@ TeamSection:NewButton("Order Ordeal (Delete Curtains)", "Deletes all parts in th
         print("Order Ordeal folder not found.")
     end
 end)
+
 
 local tribes = {"Tribe2"}
 local basketNames = {"Basket1", "Basket2", "Basket3", "Basket4", "Basket5", "Basket6", "Basket7", "Basket8", "Basket9", "Basket10"}
